@@ -10,25 +10,26 @@ from . import utils
 def create_user(name, home=None):
     """Create a new system user."""
     try:
-        pwd.getpwnam(name)
+        user_info = pwd.getpwnam(name)
     except KeyError:
-        pass
+        user_info = None
     else:
         extra_message = "."
         if home:
             extra_message = (
-                " but please make sure the {} directory exists.".format(
-                    home))
+                " but the {} directory will be ensured.".format(home)
+            )
         utils.printcolor(
             "User {} already exists, skipping creation{}".format(
                 name, extra_message), utils.YELLOW)
-        return
     cmd = "useradd -m "
     if home:
         cmd += "-d {} ".format(home)
-    utils.exec_cmd("{} {}".format(cmd, name))
+    if user_info is None:
+        utils.exec_cmd("{} {}".format(cmd, name))
+        user_info = pwd.getpwnam(name)
     if home:
-        utils.exec_cmd("chmod 755 {}".format(home))
+        utils.mkdir_safe(home, 0o755, user_info.pw_uid, user_info.pw_gid)
 
 
 def add_user_to_group(user, group):

@@ -70,6 +70,10 @@ class Modoboa(base.Installer):
 
     def _setup_venv(self):
         """Prepare a dedicated virtualenv."""
+        utils.printcolor(
+            "Preparing Modoboa Python virtualenv...",
+            utils.BLUE
+        )
         python.setup_virtualenv(self.venv_path, sudo_user=self.user)
         packages = []
         version = self.config.get("modoboa", "version")
@@ -106,6 +110,10 @@ class Modoboa(base.Installer):
         if sys.version_info.major == 2 and sys.version_info.micro < 9:
             # Add extra packages to fix the SNI issue
             packages += ["pyOpenSSL"]
+        utils.printcolor(
+            "Installing Modoboa and its Python dependencies...",
+            utils.BLUE
+        )
         python.install_packages(
             packages, self.venv_path,
             upgrade=self.upgrade,
@@ -115,6 +123,7 @@ class Modoboa(base.Installer):
 
     def _deploy_instance(self):
         """Deploy Modoboa."""
+        utils.printcolor("Deploying Modoboa instance...", utils.BLUE)
         target = os.path.join(self.home_dir, "instance")
         if os.path.exists(target):
             condition = (

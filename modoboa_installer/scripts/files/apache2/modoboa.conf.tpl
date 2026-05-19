@@ -1,7 +1,7 @@
 <VirtualHost *:80>
 	ServerName %hostname
 	RewriteEngine On
-	RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+	RewriteRule ^ https://%%{HTTP_HOST}%%{REQUEST_URI} [R=301,L]
 </VirtualHost>
 
 <VirtualHost *:443>

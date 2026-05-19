@@ -363,7 +363,7 @@ ConfigDictTemplate = [
         ]
     },
     {
-        "name": "nginx",
+        "name": "apache2",
         "values": [
             {
                 "option": "enabled",
@@ -371,7 +371,7 @@ ConfigDictTemplate = [
             },
             {
                 "option": "config_dir",
-                "default": "/etc/nginx",
+                "default": "/etc/apache2",
             },
         ],
     },

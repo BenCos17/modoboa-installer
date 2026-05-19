@@ -24,7 +24,7 @@ PRIMARY_APPS = [
     "modoboa",
     "radicale",
     "uwsgi",
-    "nginx",
+    "apache2",
     "postfix",
     "dovecot"
 ]

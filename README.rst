@@ -40,7 +40,7 @@ you run the installer, please don't copy the
 The following components are installed by the installer:
 
 * Database server (PostgreSQL or MySQL)
-* Nginx and uWSGI
+* Apache2 and uWSGI
 * Postfix
 * Dovecot
 * Amavis (with SpamAssassin and ClamAV) or Rspamd

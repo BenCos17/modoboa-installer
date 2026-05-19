@@ -108,28 +108,34 @@ class LetsEncryptCertificate(CertificateBackend):
         name, version = utils.dist_info()
         name = name.lower()
         if name == "ubuntu":
-            package.backend.update()
+            updater = getattr(package.backend, "update", None)
+            if updater:
+                updater()
             package.backend.install("software-properties-common")
             utils.exec_cmd("add-apt-repository -y universe")
             if version == "18.04":
                 utils.exec_cmd("add-apt-repository -y ppa:certbot/certbot")
-            package.backend.update()
+            updater = getattr(package.backend, "update", None)
+            if updater:
+                updater()
             package.backend.install("certbot")
         elif name.startswith("debian"):
-            package.backend.update()
+            updater = getattr(package.backend, "update", None)
+            if updater:
+                updater()
             package.backend.install("certbot")
         elif "centos" in name:
             package.backend.install("certbot")
         else:
-            utils.printcolor("Failed to install certbot, aborting.")
+            utils.printcolor("Failed to install certbot, aborting.", utils.RED)
             sys.exit(1)
-        # Nginx plugin certbot
+        # Apache2 plugin certbot
         if (
-                self.config.has_option("nginx", "enabled") and
-                self.config.getboolean("nginx", "enabled")
+            self.config.has_option("apache2", "enabled") and
+            self.config.getboolean("apache2", "enabled")
         ):
             if name == "ubuntu" or name.startswith("debian"):
-                package.backend.install("python3-certbot-nginx")
+                package.backend.install("python3-certbot-apache")
 
     def generate_cert(self):
         """Create a certificate."""
@@ -144,7 +150,7 @@ class LetsEncryptCertificate(CertificateBackend):
             fp.write("0 */12 * * * root certbot renew "
                      "--quiet\n")
         cfg_file = "/etc/letsencrypt/renewal/{}.conf".format(self.hostname)
-        pattern = "s/authenticator = standalone/authenticator = nginx/"
+        pattern = "s/authenticator = standalone/authenticator = apache/"
         utils.exec_cmd("perl -pi -e '{}' {}".format(pattern, cfg_file))
         with open("/etc/letsencrypt/renewal-hooks/deploy/reload-services.sh", "w") as fp:
             fp.write(f"""#!/bin/bash
@@ -153,6 +159,7 @@ HOSTNAME=$(basename $RENEWED_LINEAGE)
 
 if [ "$HOSTNAME" = "{self.hostname}" ]
 then
+    systemctl reload apache2 2>/dev/null || systemctl reload httpd 2>/dev/null || true
 	systemctl reload dovecot
 	systemctl reload postfix
 fi
